@@ -1,0 +1,31 @@
+body {
+    margin: 0;
+    padding-top: 30px;
+  }
+
+.titlebar {
+  height: 30px;
+  background: black;
+  color: white;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  app-region: drag;
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+#nav-bar-background {
+  margin-top: 30px;
+}
+
+ytmusic-app-layout ytmusic-nav-bar {
+  margin-top: 30px;
+}
+
+ytmusic-app-layout tp-yt-app-drawer {
+  margin-top: 30px;
+  }
