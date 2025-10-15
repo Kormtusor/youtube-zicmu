@@ -7,6 +7,8 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const config: ForgeConfig = {
   packagerConfig: {
@@ -58,6 +60,18 @@ const config: ForgeConfig = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'Kormtusor',
+          name: 'youtube-zicmu'
+        },
+        prerelease: false
+      }
+    }
+  ]
 };
 
 export default config;
