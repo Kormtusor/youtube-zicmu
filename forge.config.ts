@@ -18,7 +18,7 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      setupIcon: path.resolve(__dirname, 'public/youtubZicmu.ico')
+      setupIcon: path.resolve(__dirname, 'public/youtubZicmu.ico'),
     }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
@@ -66,12 +66,12 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: 'Kormtusor',
-          name: 'youtube-zicmu'
+          name: 'youtube-zicmu',
         },
-        prerelease: false
-      }
-    }
-  ]
+        prerelease: false,
+      },
+    },
+  ],
 };
 
 export default config;

@@ -1,46 +1,113 @@
-import {app, BrowserWindow} from 'electron';
+import { app, BrowserWindow, Menu, Tray, nativeImage, Rectangle } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
-import zicmuAppName, {setupWindowEvents} from "./custom";
-import fs from 'fs';
-
-const youtubeMusic = "https://music.youtube.com/"
+import zicmuAppName, { setupWindowEvents } from './custom';
+import zicmuStore from './store/ZicmuStore';
+const youtubeMusic = 'https://music.youtube.com/';
+let isQuiting = false;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
+const assetsPath = path.join(__dirname, app.isPackaged ? '/../renderer/main_window/' : '../../public/');
+
 const createWindow = () => {
-  // Create the browser window.
+  const mainState = zicmuStore.get('windowBounds') as Rectangle;
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 880,
+    width: mainState?.width,
+    height: mainState?.height,
+    minHeight: 240,
+    minWidth: 480,
+    resizable: true,
+    x: mainState?.x,
+    y: mainState?.y,
+    fullscreen: zicmuStore.get('isFullScreen') as boolean,
     icon: path.join(__dirname, app.isPackaged ? '../renderer/main_window/youtubZicmu.png' : '../../public/youtubZicmu.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
     autoHideMenuBar: true,
     title: zicmuAppName,
-    // remove the default titlebar
     titleBarStyle: 'hidden',
-    // expose window controls in Windows/Linux
-    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {})
+    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
   });
+
+  if (zicmuStore.get('isMaximized')) {
+    mainWindow.maximize();
+  }
+
   setupWindowEvents(mainWindow);
 
   mainWindow.loadURL(youtubeMusic);
+
   // Open the DevTools.
-  if(!app.isPackaged) {
+  if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
 
-  mainWindow.webContents.on('did-finish-load', () => {
-    const titleBarJs = fs.readFileSync(path.join(__dirname, app.isPackaged ? '../renderer/main_window/titlebar.js' : '../../public/titlebar.js'), "utf-8")
-    mainWindow.webContents.executeJavaScript(titleBarJs);
-    const titleBarCss = fs.readFileSync(path.join(__dirname, app.isPackaged ? '../renderer/main_window/titlebar.css' : '../../public/titlebar.css'), "utf-8")
-    mainWindow.webContents.insertCSS(titleBarCss);
-  })
+  mainWindow.on('close', (event) => {
+    if (!isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+    zicmuStore.set('windowBounds', mainWindow.getBounds());
+    zicmuStore.set('isMaximized', mainWindow.isMaximized());
+    zicmuStore.set('isFullScreen', mainWindow.isFullScreen());
+  });
+
+  //TODO: refacto tray.ts
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Afficher la zicmu',
+      click: () => {
+        mainWindow.show();
+      },
+    },
+    {
+        label: 'C CIAO',
+      click: () => {
+        isQuiting = true;
+        app.quit();
+      },
+    },
+  ]);
+
+  const trayApp = new Tray(
+    path.join(
+      __dirname,
+      app.isPackaged
+        ? '../renderer/main_window/youtubZicmu.png'
+        : '../../public/youtubZicmu.png',
+    ),
+  );
+  trayApp.setToolTip('Electron.js App');
+  trayApp.setContextMenu(contextMenu);
+  trayApp.on('double-click', () => {
+    mainWindow.show();
+  });
+
+  const playIcon = nativeImage.createFromPath(assetsPath + 'play-button.png');
+  const pauseIcon = nativeImage.createFromPath(assetsPath + 'pause-button.png');
+  let currentPlayStatus = false;
+
+  //TODO: refacto thumbar.ts
+  const thumbButtons = [
+    {
+      tooltip: 'JOUEEEEER',
+      icon: playIcon,
+      click() { currentPlayStatus=true;}
+    }, {
+      tooltip: 'STOOOOOOOP',
+      icon: pauseIcon,
+      //TODO: send ipc message, toggle media
+      click() { currentPlayStatus=false;}
+    }
+  ];
+
+  mainWindow.setThumbarButtons(thumbButtons);
+
 };
 
 // This method will be called when Electron has finished
