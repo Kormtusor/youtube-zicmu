@@ -1,14 +1,14 @@
 body {
-    margin: 0;
-    padding-top: 30px;
-  }
+  margin: 0;
+  padding-top: 30px;
+}
 
 .titlebar {
   height: 30px;
-  background: black;
+  background: darkgray;
   color: white;
   display: flex;
-  justify-content: left;
+  justify-content: center;
   align-items: center;
   app-region: drag;
   z-index: 9999;
@@ -17,6 +17,13 @@ body {
   left: 0;
   right: 0;
 }
+
+.titlebar-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
 
 #nav-bar-background {
   margin-top: 30px;
@@ -28,4 +35,4 @@ ytmusic-app-layout ytmusic-nav-bar {
 
 ytmusic-app-layout tp-yt-app-drawer {
   margin-top: 30px;
-  }
+}

@@ -4,6 +4,7 @@
 L'application à été réalisée dans le but de pouvoir utiliser l'application comme une application à part dans [OBS](https://obsproject.com/fr/) afin d'avoir une source audio à part au lieu du navigateur complet.
 
 ---
+
 ## ⚠️ Avertissement légal
 
 > Cette application est un **outil non officiel** développé à des fins personnelles et éducatives.
@@ -13,12 +14,15 @@ L'application à été réalisée dans le but de pouvoir utiliser l'application 
 > Si vous êtes représentant légal de Google et souhaitez que cette application soit modifiée ou retirée, merci de me contacter via GitHub.
 
 ---
+
 ## 📦 Téléchargement
+
 Les dernières versions sont disponibles sur la [page des releases](https://github.com/Kormtusor/youtube-zicmu/releases).
 
 - 🪟 Télécharger l'installer en ".exe" ici [Windows Installer](https://github.com/Kormtusor/youtube-zicmu/releases/download/v0.1.0/youtube-zicmu-0.1.0.Setup.exe)
 
 ---
+
 ## 📝 Licence
 
 Ce projet est sous licence [MIT](LICENSE).
