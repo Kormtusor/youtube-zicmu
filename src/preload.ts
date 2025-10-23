@@ -3,10 +3,9 @@
 // preload.ts
 import titlebarHTML from './templates/titlebar/titlebar.html?raw';
 import titlebarCSS from './templates/titlebar/titlebar.css?raw';
+import type { TrustedTypePolicy } from 'trusted-types/lib';
 
-// Trusted Types policy variable
 let defaultTrustedTypePolicy: TrustedTypePolicy | null = null;
-
 function registerWindowDefaultTrustedTypePolicy() {
   if (window.trustedTypes && window.trustedTypes.createPolicy) {
     defaultTrustedTypePolicy = window.trustedTypes.createPolicy('default', {
@@ -17,14 +16,14 @@ function registerWindowDefaultTrustedTypePolicy() {
   }
 }
 
-
-//TODO: refacto clean in method ? + force police to prevent size change
+//TODO: refacto clean in method ? + force police to prevent size change on youtube cookies request
 window.addEventListener('DOMContentLoaded', () => {
   registerWindowDefaultTrustedTypePolicy();
 
   const safeHTML = defaultTrustedTypePolicy.createHTML(titlebarHTML);
   //TODO: would like to remove this
   const container = document.createElement('div');
+  // @ts-ignore
   container.innerHTML = safeHTML;
   document.body.prepend(container);
 
