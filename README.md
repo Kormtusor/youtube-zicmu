@@ -19,7 +19,7 @@ L'application à été réalisée dans le but de pouvoir utiliser l'application 
 
 Les dernières versions sont disponibles sur la [page des releases](https://github.com/Kormtusor/youtube-zicmu/releases).
 
-- 🪟 Télécharger l'installer en ".exe" ici [Windows Installer](https://github.com/Kormtusor/youtube-zicmu/releases/download/v0.1.0/youtube-zicmu-0.1.0.Setup.exe)
+- 🪟 Télécharger l'installer en ".exe" de la dernière version ici: [Dernière version](https://github.com/Kormtusor/youtube-zicmu/releases/latest)
 
 ---
 
