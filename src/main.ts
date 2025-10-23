@@ -1,8 +1,10 @@
-import { app, BrowserWindow, Menu, Tray, nativeImage, Rectangle } from 'electron';
+import { app, BrowserWindow, Menu, Tray, Rectangle, protocol, net } from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
 import zicmuAppName, { setupWindowEvents } from './custom';
 import zicmuStore from './store/ZicmuStore';
+import * as url from 'node:url';
+
 const youtubeMusic = 'https://music.youtube.com/';
 let isQuiting = false;
 
@@ -31,7 +33,12 @@ const createWindow = () => {
     autoHideMenuBar: true,
     title: zicmuAppName,
     titleBarStyle: 'hidden',
-    ...(process.platform !== 'darwin' ? { titleBarOverlay: true } : {}),
+    ...(process.platform !== 'darwin' ? {
+      titleBarOverlay: {
+        color: '#000',
+        symbolColor: '#FFF',
+      },
+    } : {}),
   });
 
   if (zicmuStore.get('isMaximized')) {
@@ -60,13 +67,13 @@ const createWindow = () => {
   //TODO: refacto tray.ts
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Afficher la zicmu',
+      label: `Afficher ${zicmuAppName}`,
       click: () => {
         mainWindow.show();
       },
     },
     {
-        label: 'C CIAO',
+      label: 'Quitter',
       click: () => {
         isQuiting = true;
         app.quit();
@@ -74,47 +81,32 @@ const createWindow = () => {
     },
   ]);
 
-  const trayApp = new Tray(
-    path.join(
-      __dirname,
-      app.isPackaged
-        ? '../renderer/main_window/youtubZicmu.png'
-        : '../../public/youtubZicmu.png',
-    ),
-  );
-  trayApp.setToolTip('Electron.js App');
+  const trayApp = new Tray(path.join(assetsPath, 'youtubZicmu.png'));
+  trayApp.setToolTip(zicmuAppName);
   trayApp.setContextMenu(contextMenu);
   trayApp.on('double-click', () => {
     mainWindow.show();
   });
 
-  const playIcon = nativeImage.createFromPath(assetsPath + 'play-button.png');
-  const pauseIcon = nativeImage.createFromPath(assetsPath + 'pause-button.png');
-  let currentPlayStatus = false;
-
-  //TODO: refacto thumbar.ts
-  const thumbButtons = [
-    {
-      tooltip: 'JOUEEEEER',
-      icon: playIcon,
-      click() { currentPlayStatus=true;}
-    }, {
-      tooltip: 'STOOOOOOOP',
-      icon: pauseIcon,
-      //TODO: send ipc message, toggle media
-      click() { currentPlayStatus=false;}
+  mainWindow.webContents.on('will-prevent-unload', (event) => {
+    if (isQuiting) {
+      event.preventDefault();
+      app.quit();
     }
-  ];
-
-  mainWindow.setThumbarButtons(thumbButtons);
+  });
 
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
+app.on('ready', () => {
+  protocol.handle('localfile', (request) => {
+    const filePath = request.url.slice('localfile://'.length);
+    return net.fetch(url.pathToFileURL(path.join(assetsPath, filePath)).toString());
+  });
+  createWindow();
+});
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
