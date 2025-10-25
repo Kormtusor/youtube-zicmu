@@ -1,23 +1,25 @@
-import { app, BrowserWindow, Menu, Tray, Rectangle, protocol, net } from 'electron';
+import {app, BrowserWindow, Rectangle, protocol, net} from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
-import zicmuAppName, { setupWindowEvents } from './custom';
 import zicmuStore from './store/ZicmuStore';
 import * as url from 'node:url';
-
-const youtubeMusic = 'https://music.youtube.com/';
-let isQuiting = false;
+import setupAppMenu, {trayStatus} from './menu';
+import {youtubeMusic, zicmuAppName} from './constants';
+import {setupWindowEvents} from './custom';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+let mainWindow: Electron.BrowserWindow;
 
-const assetsPath = path.join(__dirname, app.isPackaged ? '/../renderer/main_window/' : '../../public/');
+export function getAssetsPath(): string {
+  return path.join(__dirname, app.isPackaged ? '/../renderer/main_window/' : '../../public/');
+}
 
 const createWindow = () => {
   const mainState = zicmuStore.get('windowBounds') as Rectangle;
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: mainState?.width,
     height: mainState?.height,
     minHeight: 240,
@@ -46,7 +48,7 @@ const createWindow = () => {
   }
 
   setupWindowEvents(mainWindow);
-
+  setupAppMenu(app, mainWindow);
   mainWindow.loadURL(youtubeMusic);
 
   // Open the DevTools.
@@ -55,7 +57,8 @@ const createWindow = () => {
   }
 
   mainWindow.on('close', (event) => {
-    if (!isQuiting) {
+    if (!trayStatus.isAppQuiting) {
+      trayStatus.isTrayed = true;
       event.preventDefault();
       mainWindow.hide();
     }
@@ -64,37 +67,12 @@ const createWindow = () => {
     zicmuStore.set('isFullScreen', mainWindow.isFullScreen());
   });
 
-  //TODO: refacto tray.ts
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: `Afficher ${zicmuAppName}`,
-      click: () => {
-        mainWindow.show();
-      },
-    },
-    {
-      label: 'Quitter',
-      click: () => {
-        isQuiting = true;
-        app.quit();
-      },
-    },
-  ]);
-
-  const trayApp = new Tray(path.join(assetsPath, 'youtubZicmu.png'));
-  trayApp.setToolTip(zicmuAppName);
-  trayApp.setContextMenu(contextMenu);
-  trayApp.on('double-click', () => {
-    mainWindow.show();
-  });
-
   mainWindow.webContents.on('will-prevent-unload', (event) => {
-    if (isQuiting) {
+    if (trayStatus.isAppQuiting) {
       event.preventDefault();
       app.quit();
     }
   });
-
 };
 
 // This method will be called when Electron has finished
@@ -103,7 +81,7 @@ const createWindow = () => {
 app.on('ready', () => {
   protocol.handle('localfile', (request) => {
     const filePath = request.url.slice('localfile://'.length);
-    return net.fetch(url.pathToFileURL(path.join(assetsPath, filePath)).toString());
+    return net.fetch(url.pathToFileURL(path.join(getAssetsPath(), filePath)).toString());
   });
   createWindow();
 });

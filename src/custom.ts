@@ -1,9 +1,5 @@
-import { BrowserWindow } from 'electron';
-
-const zicmuAppName = 'Youtube Zicmu';
-const youtubeDefaultTitle = ' - YouTube Music';
-
-export default zicmuAppName;
+import {BrowserWindow} from 'electron';
+import {youtubeDefaultTitle, zicmuAppName} from './constants';
 
 export function setupWindowEvents(mainWindow: BrowserWindow) {
   mainWindow.on('page-title-updated', async (event) => {
