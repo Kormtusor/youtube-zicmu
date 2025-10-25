@@ -28,7 +28,7 @@ const createWindow = () => {
     x: mainState?.x,
     y: mainState?.y,
     fullscreen: zicmuStore.get('isFullScreen') as boolean,
-    icon: path.join(__dirname, app.isPackaged ? '../renderer/main_window/youtubZicmu.png' : '../../public/youtubZicmu.png'),
+    icon: path.join(getAssetsPath(), "youtubZicmu.png"),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
