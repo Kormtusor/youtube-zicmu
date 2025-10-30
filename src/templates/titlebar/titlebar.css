@@ -35,3 +35,40 @@ ytmusic-app-layout ytmusic-nav-bar {
 ytmusic-app-layout tp-yt-app-drawer {
   margin-top: 30px;
 }
+
+.middle-controls.ytmusic-player-bar {
+  justify-content: left;
+}
+
+.content-info-wrapper.ytmusic-player-bar {
+  width: 300px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.title.ytmusic-player-bar {
+  width: fit-content;
+  min-width: 300px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+  will-change: transform;
+  animation: scrollTitle 15s linear infinite;
+}
+
+.middle-controls .title.ytmusic-player-bar:hover {
+  animation-play-state: paused;
+}
+
+@keyframes scrollTitle {
+  0%, 33% {
+    transform: none;
+  }
+  66%, 80% {
+    transform: translateX(calc(-100% + 300px));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
