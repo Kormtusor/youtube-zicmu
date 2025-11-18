@@ -17,7 +17,7 @@ on:
 jobs:
   publish:
     name: Publish Package
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Configure Git
@@ -44,9 +44,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Building Project
-        run: npm run make
-
       - name: Setup Token
         run: echo "GITHUB_TOKEN=${{ secrets.PUBLISH_TOKEN }}" > .env
 
@@ -55,5 +52,7 @@ jobs:
 
       - name: Publish Version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          git add .
+          git commit -m "feat(version): new version released"
+          git push origin
           git push origin --tags
