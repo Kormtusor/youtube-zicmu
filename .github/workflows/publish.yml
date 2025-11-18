@@ -1,7 +1,18 @@
 name: Publish to npm
 
 on:
-  workflow_dispatch:  # Enables manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version upgrade'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
 
 jobs:
   publish:
@@ -18,21 +29,28 @@ jobs:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        run: |
+          npm version ${{ github.event.inputs.bump }} --no-git-tag-version
+
       - name: Install dependencies
         run: npm install
 
-      - name: Build project
-        run: npm run build
+      - name: Building Project
+        run: npm run make
 
-      - name: Create .env file
+      - name: Setup Token
         run: echo "GITHUB_TOKEN=${{ secrets.PUBLISH_TOKEN }}" > .env
 
-      - name: Publish to npm
+      - name: Publish project on github
         run: npm run publish
 
-      - name: Create Git tag
+      - name: Publish Version
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git push origin --tags
