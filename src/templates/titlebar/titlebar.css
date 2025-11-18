@@ -44,6 +44,7 @@ ytmusic-app-layout tp-yt-app-drawer {
   width: 300px;
   overflow: hidden;
   white-space: nowrap;
+  flex: none;
 }
 
 .title.ytmusic-player-bar {
@@ -59,6 +60,12 @@ ytmusic-app-layout tp-yt-app-drawer {
 
 .middle-controls .title.ytmusic-player-bar:hover {
   animation-play-state: paused;
+}
+
+@media (max-width: 1080px) {
+  .thumbnail-image-wrapper.ytmusic-player-bar, .image.ytmusic-player-bar, .time-info.ytmusic-player-bar, .thumbs.ytmusic-player-bar {
+    display: none;
+  }
 }
 
 @keyframes scrollTitle {
