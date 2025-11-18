@@ -51,7 +51,7 @@ jobs:
         run: echo "GITHUB_TOKEN=${{ secrets.PUBLISH_TOKEN }}" > .env
 
       - name: Publish project on github
-        run: npm run publish
+        run: npm run publish -- --platform=win32
 
       - name: Publish Version
         run: |
