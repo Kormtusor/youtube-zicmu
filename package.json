@@ -1,7 +1,7 @@
 {
   "name": "youtube-zicmu",
   "productName": "youtube-zicmu",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Electron Application made over the youtube-music website to have a proper client, detected as a custom app for OBS streaming purposes.",
   "main": ".vite/build/main.js",
   "scripts": {
