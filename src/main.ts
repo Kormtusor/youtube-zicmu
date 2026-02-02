@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Rectangle, protocol, net} from 'electron';
+import {app, BrowserWindow, Rectangle, protocol, net, autoUpdater, dialog} from 'electron';
 import path from 'path';
 import started from 'electron-squirrel-startup';
 import zicmuStore from './store/ZicmuStore';
@@ -6,12 +6,22 @@ import * as url from 'node:url';
 import setupAppMenu, {trayStatus} from './menu';
 import {youtubeMusic, zicmuAppName} from './constants';
 import {setupWindowEvents} from './custom';
+import {updateElectronApp} from 'update-electron-app';
+
+let mainWindow: Electron.BrowserWindow;
+let shouldUpdate = false;
+
+setTimeout(() => {
+  updateElectronApp({
+    updateInterval: '2 hour',
+    notifyUser: false
+  });
+}, 10000);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
-let mainWindow: Electron.BrowserWindow;
 
 export function getAssetsPath(): string {
   return path.join(__dirname, app.isPackaged ? '/../renderer/main_window/' : '../../public/');
@@ -57,7 +67,7 @@ const createWindow = () => {
   }
 
   mainWindow.on('close', (event) => {
-    if (!trayStatus.isAppQuiting) {
+    if (!trayStatus.isAppQuiting && !shouldUpdate) {
       trayStatus.isTrayed = true;
       event.preventDefault();
       mainWindow.hide();
@@ -68,7 +78,8 @@ const createWindow = () => {
   });
 
   mainWindow.webContents.on('will-prevent-unload', (event) => {
-    if (trayStatus.isAppQuiting) {
+    //TODO: simplify quiting status by handling clean state ?
+    if (trayStatus.isAppQuiting || shouldUpdate) {
       event.preventDefault();
       app.quit();
     }
@@ -94,6 +105,35 @@ if (!lockAcquire) {
     });
     createWindow();
   })
+}
+
+autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName, releaseDate, updateURL) => {
+  makeUserNotifier(releaseName);
+})
+
+export function makeUserNotifier(version: string) {
+  //TODO: handle multiple languages with abstract text then fetching corresponding one.
+  const defaultDialogMessages = {
+    title: `Mise à jour de ${zicmuAppName}`,
+    detail: 'Une nouvelle mise à jour a été téléchargée. Elle s\'installera au prochain démarrage de l\'application. Voulez-vous redémarrer et mettre à jour l\'application dès maintenant ?',
+    restartButtonText: `Redémarrer ${zicmuAppName} maintenant.`,
+    laterButtonText: 'Prochain démarrage.',
+  };
+  const assignedDialog = Object.assign({}, defaultDialogMessages, null);
+  const {title, restartButtonText, laterButtonText, detail} = assignedDialog;
+  const dialogOpts: Electron.MessageBoxOptions = {
+    type: 'info',
+    buttons: [restartButtonText, laterButtonText],
+    title,
+    message: `Version ${version}`,
+    detail,
+  };
+  dialog.showMessageBox(dialogOpts).then(({response}) => {
+    if (response === 0) {
+      shouldUpdate = true;
+      autoUpdater.quitAndInstall();
+    }
+  });
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
